@@ -1,0 +1,8 @@
+{
+  "event_id": "api-002",
+  "service": "checkout-api",
+  "sequence": 2,
+  "kind": "recovered",
+  "observed_at": "2026-10-15T10:22:00Z",
+  "details": {"error_rate_pct": 0.2, "latency_p95_ms": 310, "region": "us-east-1"}
+}

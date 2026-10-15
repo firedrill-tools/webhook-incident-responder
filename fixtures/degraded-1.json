@@ -1,0 +1,8 @@
+{
+  "event_id": "api-001",
+  "service": "checkout-api",
+  "sequence": 1,
+  "kind": "degraded",
+  "observed_at": "2026-10-15T10:05:00Z",
+  "details": {"error_rate_pct": 12.4, "latency_p95_ms": 2600, "region": "us-east-1"}
+}

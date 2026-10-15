@@ -1,0 +1,1 @@
+"""Durable synthetic incident responder."""
