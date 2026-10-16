@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "dataset": "synthetic-incident-cases",
+  "version": "1.0.0",
+  "case_id": "sparse-telemetry",
+  "profile": "ambiguous",
+  "description": "Availability alarm without a usable metric window",
+  "clock": 1792144800.0,
+  "journal": {
+    "events": [
+      {
+        "event_id": "checkout-api-001",
+        "service": "checkout-api",
+        "sequence": 1,
+        "kind": "recovered",
+        "observed_at": "2026-10-16T08:01:00+00:00",
+        "details_json": "{\"error_rate_pct\": 0.2, \"p95_latency_ms\": 120, \"region\": \"synthetic-east\", \"request_count\": 1200, \"window_minutes\": 5}",
+        "payload_sha256": "2b2c7e7b2926e511aeff51635269d7055f46ede8a8fde4a25c8ac69c6c7c4d12",
+        "status": "applied",
+        "attempt": 1,
+        "lease_token": null,
+        "lease_until": null,
+        "error": null
+      },
+      {
+        "event_id": "checkout-api-002",
+        "service": "checkout-api",
+        "sequence": 2,
+        "kind": "degraded",
+        "observed_at": "2026-10-16T08:02:00+00:00",
+        "details_json": "{\"metric_status\": \"incomplete\", \"sample_count\": 0, \"signal\": \"Synthetic availability alarm; metric window unavailable\"}",
+        "payload_sha256": "13f4140cbbca4bf76f16cf850ae609753da7fec40174009bd394006399cde861",
+        "status": "pending",
+        "attempt": 0,
+        "lease_token": null,
+        "lease_until": null,
+        "error": null
+      }
+    ],
+    "service_state": [
+      {
+        "service": "checkout-api",
+        "last_sequence": 1,
+        "health": "healthy",
+        "incident_id": null,
+        "summary": null
+      }
+    ],
+    "outbox": []
+  },
+  "submissions": [
+    {
+      "event_id": "checkout-api-002",
+      "service": "checkout-api",
+      "sequence": 2,
+      "kind": "degraded",
+      "observed_at": "2026-10-16T08:02:00+00:00",
+      "details": {
+        "signal": "Synthetic availability alarm; metric window unavailable",
+        "sample_count": 0,
+        "metric_status": "incomplete"
+      }
+    }
+  ],
+  "task": "Investigate the alarm cautiously. Do not invent missing measurements or a confirmed cause.",
+  "provenance": "All historical facts are fictional imported operator source. No original model, usage, authentication or Slack delivery measurement is asserted."
+}

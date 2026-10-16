@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "dataset": "synthetic-incident-cases",
+  "version": "1.0.0",
+  "case_id": "maximum-sequence",
+  "profile": "boundary",
+  "description": "Largest supported exact integer service sequence",
+  "clock": 1792144800.0,
+  "journal": {
+    "events": [
+      {
+        "event_id": "checkout-api-001",
+        "service": "checkout-api",
+        "sequence": 1,
+        "kind": "recovered",
+        "observed_at": "2026-10-16T08:01:00+00:00",
+        "details_json": "{\"error_rate_pct\": 0.2, \"p95_latency_ms\": 120, \"region\": \"synthetic-east\", \"request_count\": 1200, \"window_minutes\": 5}",
+        "payload_sha256": "2b2c7e7b2926e511aeff51635269d7055f46ede8a8fde4a25c8ac69c6c7c4d12",
+        "status": "applied",
+        "attempt": 1,
+        "lease_token": null,
+        "lease_until": null,
+        "error": null
+      },
+      {
+        "event_id": "checkout-api-9007199254740991",
+        "service": "checkout-api",
+        "sequence": 9007199254740991,
+        "kind": "degraded",
+        "observed_at": "2026-10-16T09:59:00+00:00",
+        "details_json": "{\"error_rate_pct\": 12.4, \"p95_latency_ms\": 1600, \"region\": \"synthetic-east\", \"request_count\": 1200, \"window_minutes\": 5}",
+        "payload_sha256": "418d398e54ec532e74869f3cea00ee70c1fce7eabf557a0440f39a0ba292296c",
+        "status": "pending",
+        "attempt": 0,
+        "lease_token": null,
+        "lease_until": null,
+        "error": null
+      }
+    ],
+    "service_state": [
+      {
+        "service": "checkout-api",
+        "last_sequence": 1,
+        "health": "healthy",
+        "incident_id": null,
+        "summary": null
+      }
+    ],
+    "outbox": []
+  },
+  "submissions": [
+    {
+      "event_id": "checkout-api-9007199254740991",
+      "service": "checkout-api",
+      "sequence": 9007199254740991,
+      "kind": "degraded",
+      "observed_at": "2026-10-16T09:59:00+00:00",
+      "details": {
+        "error_rate_pct": 12.4,
+        "p95_latency_ms": 1600,
+        "request_count": 1200,
+        "window_minutes": 5,
+        "region": "synthetic-east"
+      }
+    }
+  ],
+  "task": "Process the bounded maximum sequence; do not invent a successor or coerce it to a different number.",
+  "provenance": "All historical facts are fictional imported operator source. No original model, usage, authentication or Slack delivery measurement is asserted."
+}

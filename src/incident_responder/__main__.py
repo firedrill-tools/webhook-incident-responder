@@ -16,6 +16,12 @@ from .source import strict_json
 from .store import EventStore
 from .web import create_app
 from .delivery import send_once_async
+from .datasets import (
+    list_cases,
+    initialize_workspace,
+    inspect_workspace,
+    reset_workspace,
+)
 
 
 async def work_queue(store, args):
@@ -103,10 +109,31 @@ def main() -> None:
         "--decision", choices=("delivered", "not_delivered"), required=True
     )
     resolve.add_argument("--note", required=True)
+    commands.add_parser("datasets")
+    initialize = commands.add_parser("init")
+    initialize.add_argument("--case", required=True)
+    initialize.add_argument("--directory", type=Path, required=True)
+    inspect = commands.add_parser("workspace")
+    inspect.add_argument("directory", type=Path)
+    reset = commands.add_parser("reset")
+    reset.add_argument("directory", type=Path)
+    reset.add_argument("--to", type=Path, required=True)
+    reset.add_argument("--instance", required=True)
     serve = commands.add_parser("serve")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
+    if args.command in {"datasets", "init", "workspace", "reset"}:
+        if args.command == "datasets":
+            result = list_cases()
+        elif args.command == "init":
+            result = initialize_workspace(args.case, args.directory)
+        elif args.command == "workspace":
+            result = inspect_workspace(args.directory)
+        else:
+            result = reset_workspace(args.directory, args.to, args.instance)
+        print(json.dumps(result, indent=2))
+        return 0
     store = EventStore(args.db)
     exit_code = 0
     if args.command == "submit":

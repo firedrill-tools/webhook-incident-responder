@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "dataset": "synthetic-incident-cases",
+  "version": "1.0.0",
+  "case_id": "already-current",
+  "profile": "boundary",
+  "description": "Applied event and historical sent notification are replayed",
+  "clock": 1792144800.0,
+  "journal": {
+    "events": [
+      {
+        "event_id": "checkout-api-001",
+        "service": "checkout-api",
+        "sequence": 1,
+        "kind": "recovered",
+        "observed_at": "2026-10-16T08:01:00+00:00",
+        "details_json": "{\"error_rate_pct\": 0.2, \"p95_latency_ms\": 120, \"region\": \"synthetic-east\", \"request_count\": 1200, \"window_minutes\": 5}",
+        "payload_sha256": "2b2c7e7b2926e511aeff51635269d7055f46ede8a8fde4a25c8ac69c6c7c4d12",
+        "status": "applied",
+        "attempt": 1,
+        "lease_token": null,
+        "lease_until": null,
+        "error": null
+      },
+      {
+        "event_id": "checkout-api-002",
+        "service": "checkout-api",
+        "sequence": 2,
+        "kind": "degraded",
+        "observed_at": "2026-10-16T08:02:00+00:00",
+        "details_json": "{\"error_rate_pct\": 12.4, \"p95_latency_ms\": 1600, \"region\": \"synthetic-east\", \"request_count\": 1200, \"window_minutes\": 5}",
+        "payload_sha256": "2c528ad3fff3748eaad3517eaa2e2b546691abe173a9049a9a01245a360b56f4",
+        "status": "applied",
+        "attempt": 1,
+        "lease_token": null,
+        "lease_until": null,
+        "error": null
+      }
+    ],
+    "service_state": [
+      {
+        "service": "checkout-api",
+        "last_sequence": 2,
+        "health": "degraded",
+        "incident_id": "checkout-api-2",
+        "summary": "Imported synthetic operator note for checkout-api sequence 2"
+      }
+    ],
+    "outbox": [
+      {
+        "notification_id": 1,
+        "event_id": "checkout-api-002",
+        "message": "[WARNING] checkout-api incident checkout-api-2: Imported synthetic operator note for checkout-api sequence 2 Cause: Unconfirmed in imported source. Next: Inspect request traces. Evidence: checkout-api-002",
+        "status": "sent",
+        "sent_at": 1792144202.0
+      }
+    ]
+  },
+  "submissions": [
+    {
+      "event_id": "checkout-api-002",
+      "service": "checkout-api",
+      "sequence": 2,
+      "kind": "degraded",
+      "observed_at": "2026-10-16T08:02:00+00:00",
+      "details": {
+        "error_rate_pct": 12.4,
+        "p95_latency_ms": 1600,
+        "request_count": 1200,
+        "window_minutes": 5,
+        "region": "synthetic-east"
+      }
+    }
+  ],
+  "task": "Inspect or replay the original event without another model call or notification.",
+  "provenance": "All historical facts are fictional imported operator source. No original model, usage, authentication or Slack delivery measurement is asserted."
+}

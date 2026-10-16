@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "dataset": "synthetic-incident-cases",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "case_id": "checkout-degradation",
+      "profile": "starter",
+      "description": "One new degradation after a healthy baseline",
+      "file": "checkout-degradation.json",
+      "sha256": "365bfa4d6face16b949fbbeab114d614f347f907da971d41213a72162dc94b47"
+    },
+    {
+      "case_id": "delayed-recovery",
+      "profile": "starter",
+      "description": "A recovery follows an active imported incident",
+      "file": "delayed-recovery.json",
+      "sha256": "39a4343726082249747f4ed68c6bc3bbfe9cb1a7248ae33edff53a44f9318018"
+    },
+    {
+      "case_id": "semantic-replay",
+      "profile": "starter",
+      "description": "Same event repeated with reordered detail keys",
+      "file": "semantic-replay.json",
+      "sha256": "a2947d473b1f26647a6f7329fde46358bafc181c748dfdf506f62bf7bcc47477"
+    },
+    {
+      "case_id": "regional-busy",
+      "profile": "busy",
+      "description": "Twelve services, sixty prior events, forty-eight imported notifications and twelve pending degradations",
+      "file": "regional-busy.json",
+      "sha256": "4029a644dd9320a695b249a2c7b8b62ec794b9310775d3b36c33ef32139f8602"
+    },
+    {
+      "case_id": "sparse-telemetry",
+      "profile": "ambiguous",
+      "description": "Availability alarm without a usable metric window",
+      "file": "sparse-telemetry.json",
+      "sha256": "7da6a1d0693d2290f5511e9dcb419a29cc8560ef4a70bd2608e91163e31de2fb"
+    },
+    {
+      "case_id": "hostile-log",
+      "profile": "ambiguous",
+      "description": "Untrusted event log contains action instructions and Slack controls",
+      "file": "hostile-log.json",
+      "sha256": "06cff33ac65dbff144a497700f32c14688c5ddb4fa2b658ffe496e6b855e72db"
+    },
+    {
+      "case_id": "recovery-before-degradation",
+      "profile": "boundary",
+      "description": "Recovery arrives before an older degradation",
+      "file": "recovery-before-degradation.json",
+      "sha256": "c7bd6b27b7e16de7aced6b04972754823edc35c17240b7c86f300fd1ffe38a42"
+    },
+    {
+      "case_id": "stale-degradation",
+      "profile": "boundary",
+      "description": "Current healthy sequence is newer than a delayed degradation",
+      "file": "stale-degradation.json",
+      "sha256": "adfe3187acf00a3105b53d660d51c1a1514b29929c175e4ce7fb231820c2cd2c"
+    },
+    {
+      "case_id": "maximum-sequence",
+      "profile": "boundary",
+      "description": "Largest supported exact integer service sequence",
+      "file": "maximum-sequence.json",
+      "sha256": "cf98a899851128afbbd884d13317d6099f4a29758b4876e6e671aa679e8bd763"
+    },
+    {
+      "case_id": "expired-worker",
+      "profile": "boundary",
+      "description": "One imported expired processing lease",
+      "file": "expired-worker.json",
+      "sha256": "4e2eabdc3405aa039f150a1bf10076844e51c2896a1dc5d12066ae4507f365b2"
+    },
+    {
+      "case_id": "exhausted-failure",
+      "profile": "boundary",
+      "description": "Imported failed event already at the three-attempt limit",
+      "file": "exhausted-failure.json",
+      "sha256": "fd933e2301db711da732998a62270a834f619407d4b7ffcbe8ba6323a48c7b9e"
+    },
+    {
+      "case_id": "already-current",
+      "profile": "boundary",
+      "description": "Applied event and historical sent notification are replayed",
+      "file": "already-current.json",
+      "sha256": "4a387756e7694ac1ae4f308e120d2c312134e455fc8dc6aa277ca5db25fcbe9e"
+    }
+  ]
+}

@@ -4,10 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "webhook-incident-responder"
-version = "0.1.0"
+version = "0.2.0"
+readme = "README.md"
 description = "LangGraph and Anthropic event worker with ordered incidents and Slack outbox"
 requires-python = ">=3.12"
 dependencies = ["langgraph==1.2.15", "langchain-anthropic==1.7.6", "anthropic==1.14.0", "httpx2==2.13.1", "fastapi>=0.115,<1", "uvicorn>=0.30,<1"]
+
+[project.scripts]
+incident-responder = "incident_responder.__main__:main"
 
 [project.optional-dependencies]
 test = ["pytest>=8,<10", "httpx>=0.27,<1"]
@@ -17,3 +21,9 @@ packages = ["src/incident_responder"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"data" = "incident_responder/sample_data"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "data", "fixtures", "tests", "scripts", "scenarios", ".github", "README.md", "AGENTS.md", "PLAN.md", "COMPATIBILITY.md", "pyproject.toml", "uv.lock", ".gitignore"]

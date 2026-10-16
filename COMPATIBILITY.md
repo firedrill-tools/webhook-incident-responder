@@ -18,7 +18,7 @@ Bounds describe retained decoded response evidence (1 MiB), prepared request siz
 
 ## Remaining independent and external work
 
-Rich coherent starter/busy/ambiguous/boundary datasets, exclusive private key-free CLI/reset/readback and full fresh locked wheel/sdist/source packaging remain. See PLAN.md. Real Claude semantic/billing review, explicit Slack test authorization/access, qualified new Firedrill integration and publication/license stay parked.
+Versioned data and distributions are qualified below. See PLAN.md. Real Claude semantic/billing review, explicit Slack test authorization/access, qualified new Firedrill integration and publication/license stay parked.
 
 
 ## Stored source and bounded intake checkpoint
@@ -42,4 +42,13 @@ Delivery is qualified below using controlled endpoints. Remaining independent wo
 
 New HTTP clients are owned per delivery, awaited on error/cancel/deadline and closed before acknowledgement release. Private prepared/final receipts retain original request/response hashes/body/status while exposing only origin/URL hash; provider URL path and transport error text are not printed. Post-dispatch uncertainty cannot automatically retry. Resolution is explicitly an operator assertion, separate from original HTTP acknowledgement; no Slack message ID/ts is invented. Recording faults stop later work; an already-sent SQL effect survives a failed final receipt with failed run/nonzero CLI and unknown durable status when final recording remains unavailable. Retained decoded acknowledgement is bounded4KiB, not upstream allocation/wire or a hard whole-run wall guarantee.
 
-Live Claude semantics/billing, real Slack access/delivery authorization, qualified new Firedrill and publication/license remain parked. Rich coherent cases/private initialization/readback/reset and full fresh locked distributions remain independent work. This checkpoint is not full project completion.
+Live Claude semantics/billing, real Slack access/delivery authorization, qualified new Firedrill and publication/license remain parked. Versioned data/distributions are qualified below. The delivery checkpoint by itself is not full project completion.
+
+
+## Versioned data and complete distribution
+
+[Delivery161 passed atdd3ac96](https://github.com/firedrill-tools/webhook-incident-responder/actions/runs/38890573151). All183 checks now pass locally, including22 case/CLI/source-authority checks. synthetic-incident-cases1.0.0 contains twelve cases/four profiles; the busy source has twelve services, sixty prior events, forty-eight imported notifications and twelve pending degradations. Its original timestamps/metrics/incidents agree, with all prior model/authentication/usage/real Slack observations unavailable. Semantic replay, recovery-before-degradation, maximum safe sequence, expired worker, exhausted retry, already-current, sparse telemetry and hostile source text exercise distinct paths. Actual native calls on busy/ambiguous/maximum-sequence cases receive only business context; task and case identity stay outside the prompt. Controlled models do not establish semantic obedience or quality.
+
+Source-authority hashes bind the index and every case before initialization. Exclusive private model-free CLI/init/readback/reset preserves collisions, original imported row values and old workspaces/evidence. Reset materializes a fresh original case with a new owned database instance after checking the old identity; it does not delete old work. Missing journals and changed identity/source are refused without repair. New imported provenance remains legacy_snapshot, never invented original model/delivery measurements.
+
+Fresh locked wheel, sdist and complete-source installs outside checkout pass console/module CLI, all twelve private cases/reset, missing-key failure receipt, actual SDK over local HTTP and acknowledged local webhook delivery. The complete archived source runs the full183-check suite and every original archived file remains byte-identical afterward. Repeated source archive bytes and exact per-file manifests agree. The source archive contains all source/data/fixtures/tests/helpers/scripts/scenarios/docs/CI/lockfiles, excluding installed caches; it is generated independently of Git. Exact Linux source/data/distribution CI and portable source hash remain the final checkpoint before catalog completion. All external gates remain parked.

@@ -7,8 +7,8 @@ A synthetic service incident worker using [LangGraph](https://docs.langchain.com
 Requires Python 3.12+ and `uv`:
 
 ```sh
-uv sync --extra test
-uv run pytest -q
+uv sync --locked --extra test
+uv run --locked --extra test pytest -q
 uv run python -m incident_responder --db incidents.db submit fixtures/degraded-1.json
 uv run python -m incident_responder --db incidents.db get api-001
 ```
@@ -57,7 +57,7 @@ The 1 MiB response cap is retained decoded evidence, not a hard wire/peak-memory
 
 New intake retains its original application-serialized event bytes/hash and a canonical business binding. Reordering JSON object keys is a replay when all typed facts agree; changed facts remain a conflict. The known original three-table journal migrates transactionally, preserving original event/state/outbox values and IDs. Its unavailable original serialization is labeled legacy_snapshot; no historical authentication/model/usage or original bytes are invented. A newly captured canonical binding detects later inconsistent edits. This is cooperative local integrity validation, not protection against a local actor rewriting every consistent record/hash.
 
-Signed intake checks signature format before reading, caps accumulated body bytes at 65,536, rejects duplicate/nonfinite JSON and strict contract violations, and compares HMAC over the actual received bytes. It never invokes the model. Original signed wire JSON is distinct from the stored application serialization. The schema supports at most 1,000 events/notifications and 128 services, 8 MiB each of business payload and retained original serializations, and a 64 MiB regular journal file. Source placement and ASGI body caps are not hard upstream wire/peak-memory guarantees. Rich dataset/distribution work remains in PLAN.md; the live Slack gate stays parked.
+Signed intake checks signature format before reading, caps accumulated body bytes at 65,536, rejects duplicate/nonfinite JSON and strict contract violations, and compares HMAC over the actual received bytes. It never invokes the model. Original signed wire JSON is distinct from the stored application serialization. The schema supports at most 1,000 events/notifications and 128 services, 8 MiB each of business payload and retained original serializations, and a 64 MiB regular journal file. Source placement and ASGI body caps are not hard upstream wire/peak-memory guarantees. Versioned case/distribution qualification is documented below; the live Slack gate stays parked.
 
 
 ## Delivery journal checkpoint
@@ -66,4 +66,49 @@ Signed intake checks signature format before reading, caps accumulated body byte
 
 A private prepared trace precedes claim/dispatch/acknowledgement commit. The target appears as origin plus URL hash, excluding its secret path; errors exposed by the CLI are sanitized. Original decoded response status/body/hash remain private, distinct from an operator assertion. Clients disable redirects and environment proxies, use explicit HTTP/operation budgets, and close before acknowledgement release. Recording failures prevent later dispatch/commit; an already committed sent effect survives a failed receipt and the CLI exits nonzero. `receipt_durable_status=unknown` reports a persistent final recording fault. Cooperative lease expiry after a killed sender holds the uncertain POST rather than resending. The 4 KiB cap is retained decoded acknowledgement data, not a hard network/peak-allocation bound. Local synchronous database/recording work and cleanup are outside a hard whole-run wall guarantee.
 
-The acknowledgement and text escaping follow the official [incoming-webhook contract](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) and [message text formatting](https://docs.slack.dev/messaging/formatting-message-text/). Controlled receiver acknowledgement proves the application boundary; it does not prove real Slack receipt, downstream visibility or paid provider quality. Rich versioned cases/private initialization and fresh locked distributions remain active in [PLAN.md](PLAN.md).
+The acknowledgement and text escaping follow the official [incoming-webhook contract](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) and [message text formatting](https://docs.slack.dev/messaging/formatting-message-text/). Controlled receiver acknowledgement proves the application boundary; it does not prove real Slack receipt, downstream visibility or paid provider quality. Versioned case/distribution qualification is documented below; [PLAN.md](PLAN.md) retains external gates and the portfolio handoff.
+
+
+## Versioned synthetic workspaces
+
+`synthetic-incident-cases` 1.0.0 contains twelve source-hash-bound cases in four profiles. All prior history is fictional imported operator source. There are no invented prior model messages, tokens, authentication measurements or real Slack receipts. The task and case identity stay outside model event/context inputs.
+
+| Profile | Cases |
+| --- | --- |
+| Starter | checkout-degradation, delayed-recovery, semantic-replay |
+| Busy | regional-busy: twelve services, sixty historical events, forty-eight imported notifications, twelve pending degradations |
+| Ambiguous | sparse-telemetry, hostile-log |
+| Boundary | recovery-before-degradation, stale-degradation, maximum-sequence, expired-worker, exhausted-failure, already-current |
+
+List, initialize and inspect without keys or network calls:
+
+```sh
+uv run --locked incident-responder datasets
+uv run --locked incident-responder init --case regional-busy --directory /tmp/incident-busy
+uv run --locked incident-responder workspace /tmp/incident-busy
+uv run --locked incident-responder --db /tmp/incident-busy/incidents.db outbox
+```
+
+Initialization validates the pinned index and case hashes, creates an exclusive 0700 directory/0600 files, migrates the supported imported journal without changing its original rows, and writes instance-bound `workspace.json`, `TASK.md` and replay `submissions.json`. Existing paths, files and symlinks are preserved. The source clock recorded in identity is a fixture reference; ordinary workers use their configured current store clock, never event observed_at. API callers can inject a cooperative clock for lease experiments. Model investigation and delivery remain separate explicit commands.
+
+Reset creates a fresh copy of the original case while preserving the old workspace and evidence. Use its current database instance from `workspace`:
+
+```sh
+uv run --locked incident-responder reset /tmp/incident-busy --to /tmp/incident-busy-fresh --instance CURRENT_INSTANCE_UUID
+```
+
+`workspace` validates the identity and full current journal and refuses missing/replaced/corrupt source. Identity labels do not replace current source validation or establish hostile-tamper protection.
+
+## Distribution qualification
+
+183 checks pass, including all twelve cases, coherent import preservation, key-free CLI/init/readback/reset, corrupt manifest refusal, and actual pinned native investigations on busy/ambiguous/maximum-sequence source. Native controlled responses qualify source placement and runtime behavior; semantic model quality still needs a separately authorized live run.
+
+```sh
+uv run --locked python scripts/build_datasets.py --check
+uv build
+uv run --locked python scripts/check_distribution.py
+```
+
+The wheel includes all thirteen JSON data files. The sdist includes source, lockfile, data, original fixtures, tests/helpers, scripts, scenarios, docs and CI. The separate deterministic complete source archive adds an exact per-file SHA256/size/mode manifest and is built without Git or installed caches. `dist/webhook-incident-responder-0.2.0-source.tar.gz` is created by the distribution gate. Fresh locked wheel, sdist and complete-source environments outside the checkout exercise console/module CLI, all twelve private cases, reset, missing-key failure receipts, actual SDK over owned HTTP and acknowledged controlled delivery. The complete archived source runs the entire183-check suite and keeps every archived original file unchanged. CI uploads distributions and `qualification.json` for review; repositories remain private and no publication/license choice is implied.
+
+Independent application requirements are implemented. Exact source/data/distribution Linux evidence is recorded in [COMPATIBILITY.md](COMPATIBILITY.md) and the catalog. Paid Claude quality/billing, real Slack authorization/access, a qualified new Firedrill contract and publication/license remain parked.
