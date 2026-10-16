@@ -242,7 +242,10 @@ async def investigate(
         (
             "human",
             json.dumps(
-                {"event": business, "context": context}, sort_keys=True, allow_nan=False
+                {"event": business, "context": context},
+                sort_keys=True,
+                ensure_ascii=False,
+                allow_nan=False,
             ),
         ),
     ]

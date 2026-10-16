@@ -13,6 +13,7 @@ import uvicorn
 
 from .graph import run_once_async
 from .schema import ServiceEvent
+from .source import strict_json
 from .store import EventStore
 from .web import create_app
 
@@ -112,7 +113,9 @@ def main() -> None:
     store = EventStore(args.db)
     exit_code = 0
     if args.command == "submit":
-        result = store.submit(ServiceEvent.model_validate_json(args.file.read_text()))
+        result = store.submit(
+            ServiceEvent.model_validate(strict_json(args.file.read_bytes()))
+        )
     elif args.command == "work":
         result, exit_code = asyncio.run(work_queue(store, args))
     elif args.command == "get":

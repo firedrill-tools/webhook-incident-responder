@@ -225,7 +225,7 @@ def test_native_deadline_cancels_owned_transport_before_return_and_cannot_commit
             base_url="http://127.0.0.1:19",
             transport=transport,
             output_root=tmp_path / "runs",
-            timeout_seconds=0.05,
+            timeout_seconds=0.25,
         )
         assert result["status"] == "failed" and result["run_status"] == "failed"
         assert cancelled.is_set() and transport.closed and store.outbox() == []

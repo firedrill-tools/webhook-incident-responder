@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
+import stat
 import sqlite3
 import time
 import uuid
@@ -13,43 +15,88 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from .schema import IncidentAssessment, ServiceEvent
+from .source import (
+    InvalidSource,
+    validate,
+    canonical_event,
+    initialize,
+    identity,
+    source_digest,
+)
 
 
 class EventStore:
     def __init__(self, path: str | Path, clock=time.time):
         self.path = str(path)
         self.clock = clock
-        with self._db() as db:
-            db.executescript("""
-                CREATE TABLE IF NOT EXISTS events (
-                    event_id TEXT PRIMARY KEY, service TEXT NOT NULL, sequence INTEGER NOT NULL,
-                    kind TEXT NOT NULL, observed_at TEXT NOT NULL, details_json TEXT NOT NULL,
-                    payload_sha256 TEXT NOT NULL, status TEXT NOT NULL, attempt INTEGER NOT NULL DEFAULT 0,
-                    lease_token TEXT, lease_until REAL, error TEXT,
-                    UNIQUE(service, sequence)
-                );
-                CREATE TABLE IF NOT EXISTS service_state (
-                    service TEXT PRIMARY KEY, last_sequence INTEGER NOT NULL, health TEXT NOT NULL,
-                    incident_id TEXT, summary TEXT
-                );
-                CREATE TABLE IF NOT EXISTS outbox (
-                    notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    event_id TEXT NOT NULL UNIQUE REFERENCES events(event_id),
-                    message TEXT NOT NULL, status TEXT NOT NULL,
-                    sent_at REAL
-                );
-            """)
+        self._file_identity = None
+        self._instance_id = None
+        if self.path == ":memory:":
+            raise ValueError("a persistent local journal path is required")
+        self.path = os.path.abspath(self.path)
+        with self._db(initialize_source=True) as db:
+            self._instance_id = identity(db)
+        info = Path(self.path).lstat()
+        self._file_identity = (info.st_dev, info.st_ino)
+
+    def _file_info(self):
+        try:
+            info = Path(self.path).lstat()
+        except FileNotFoundError:
+            if self._file_identity is not None:
+                raise InvalidSource("incident journal disappeared")
+            return None
+        if (
+            not stat.S_ISREG(info.st_mode)
+            or info.st_nlink != 1
+            or info.st_size > 64 * 1024 * 1024
+        ):
+            raise InvalidSource("journal requires a bounded regular local file")
+        if (
+            self._file_identity is not None
+            and (info.st_dev, info.st_ino) != self._file_identity
+        ):
+            raise InvalidSource("incident journal file was replaced")
+        return info
 
     @contextmanager
-    def _db(self) -> Iterator[sqlite3.Connection]:
-        db = sqlite3.connect(self.path, timeout=10)
-        db.row_factory = sqlite3.Row
-        db.execute("PRAGMA foreign_keys=ON")
+    def _db(self, *, initialize_source=False):
+        before = self._file_info()
+        db = None
         try:
-            with db:
-                yield db
+            db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
+            db.row_factory = sqlite3.Row
+            if before is None:
+                os.chmod(self.path, 0o600)
+            db.execute("PRAGMA foreign_keys=ON")
+            db.execute("BEGIN IMMEDIATE")
+            if initialize_source:
+                initialize(db, self._now)
+            validate(db)
+            if self._instance_id is not None and identity(db) != self._instance_id:
+                raise InvalidSource("incident journal ownership identity changed")
+            yield db
+            validate(db)
+            self._file_info()
+            if self._instance_id is not None and identity(db) != self._instance_id:
+                raise InvalidSource("incident journal ownership identity changed")
+            db.commit()
+        except sqlite3.Error as error:
+            if db is not None:
+                db.rollback()
+            if getattr(error, "sqlite_errorcode", 0) & 255 in (
+                sqlite3.SQLITE_BUSY,
+                sqlite3.SQLITE_LOCKED,
+            ):
+                raise RuntimeError("incident journal is busy") from error
+            raise InvalidSource("incident journal operation failed") from error
+        except BaseException:
+            if db is not None:
+                db.rollback()
+            raise
         finally:
-            db.close()
+            if db is not None:
+                db.close()
 
     @staticmethod
     def _event(row: sqlite3.Row | None) -> dict | None:
@@ -60,15 +107,29 @@ class EventStore:
         return result
 
     def submit(self, event: ServiceEvent) -> dict:
+        event = ServiceEvent.model_validate(event)
         serialized = event.model_dump_json()
         digest = hashlib.sha256(serialized.encode()).hexdigest()
         with self._db() as db:
-            db.execute("BEGIN IMMEDIATE")
             previous = db.execute(
                 "SELECT * FROM events WHERE event_id=?", (event.event_id,)
             ).fetchone()
             if previous:
-                if previous["payload_sha256"] != digest:
+                original = self._event(previous)
+                original_event = ServiceEvent.model_validate(
+                    {
+                        key: original[key]
+                        for key in (
+                            "event_id",
+                            "service",
+                            "sequence",
+                            "kind",
+                            "observed_at",
+                            "details",
+                        )
+                    }
+                )
+                if canonical_event(original_event) != canonical_event(event):
                     raise ValueError("event ID reused with different payload")
                 return self._event(previous)
             try:
@@ -83,7 +144,12 @@ class EventStore:
                         event.sequence,
                         event.kind,
                         event.observed_at,
-                        json.dumps(event.details, sort_keys=True),
+                        json.dumps(
+                            event.details,
+                            sort_keys=True,
+                            ensure_ascii=False,
+                            allow_nan=False,
+                        ),
                         digest,
                     ),
                 )
@@ -91,6 +157,16 @@ class EventStore:
                 raise ValueError(
                     "service sequence already assigned to another event"
                 ) from exc
+            db.execute(
+                "INSERT INTO event_sources VALUES (?,?,?,?,?)",
+                (
+                    event.event_id,
+                    source_digest(event, digest),
+                    serialized,
+                    "application_serialized",
+                    self._now(),
+                ),
+            )
             return self._event(
                 db.execute(
                     "SELECT * FROM events WHERE event_id=?", (event.event_id,)
@@ -102,6 +178,7 @@ class EventStore:
         if (
             isinstance(value, bool)
             or not isinstance(value, (int, float))
+            or abs(value) > 2**53
             or not math.isfinite(value)
         ):
             raise ValueError("clock must return finite numeric seconds")
@@ -111,12 +188,11 @@ class EventStore:
         if (
             isinstance(lease_seconds, bool)
             or not isinstance(lease_seconds, (int, float))
-            or not math.isfinite(lease_seconds)
             or not 0 < lease_seconds <= 3600
+            or not math.isfinite(lease_seconds)
         ):
             raise ValueError("lease seconds must be finite and in (0,3600]")
         with self._db() as db:
-            db.execute("BEGIN IMMEDIATE")
             if guard is not None:
                 guard()
             now = self._now()
@@ -187,7 +263,6 @@ class EventStore:
         guard=None,
     ) -> dict:
         with self._db() as db:
-            db.execute("BEGIN IMMEDIATE")
             if guard is not None:
                 guard()
             row = db.execute(
@@ -225,6 +300,7 @@ class EventStore:
             if event["kind"] == "degraded":
                 if assessment is None:
                     raise ValueError("degraded event needs an assessment")
+                assessment = IncidentAssessment.model_validate(assessment)
                 allowed = {
                     row["event_id"]
                     for row in db.execute(
@@ -286,7 +362,6 @@ class EventStore:
 
     def fail(self, event_id: str, token: str, error: str) -> bool:
         with self._db() as db:
-            db.execute("BEGIN IMMEDIATE")
             updated = db.execute(
                 """
                 UPDATE events SET status='failed', error=?, lease_token=NULL, lease_until=NULL
@@ -298,7 +373,6 @@ class EventStore:
 
     def retry(self, event_id: str) -> dict:
         with self._db() as db:
-            db.execute("BEGIN IMMEDIATE")
             row = db.execute(
                 "SELECT * FROM events WHERE event_id=?", (event_id,)
             ).fetchone()

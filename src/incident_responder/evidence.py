@@ -46,6 +46,7 @@ class Receipt:
             "started_at": now(),
             "status": "prepared",
             "database": str(Path(store.path).resolve()),
+            "database_instance": store._instance_id,
             "event": None,
             "context": None,
             "native": [],
