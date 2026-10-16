@@ -6,7 +6,6 @@ import signal
 import json
 import os
 import sys
-import urllib.request
 from pathlib import Path
 
 import uvicorn
@@ -16,26 +15,7 @@ from .schema import ServiceEvent
 from .source import strict_json
 from .store import EventStore
 from .web import create_app
-
-
-def send_pending(store: EventStore, webhook_url: str) -> list[dict]:
-    results = []
-    for item in store.outbox():
-        if item["status"] != "pending":
-            continue
-        body = json.dumps({"text": item["message"]}).encode()
-        request = urllib.request.Request(
-            webhook_url,
-            data=body,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(request, timeout=10) as response:
-            if response.status < 200 or response.status >= 300:
-                raise RuntimeError(f"Slack webhook returned {response.status}")
-        store.mark_sent(item["notification_id"])
-        results.append({"notification_id": item["notification_id"], "status": "sent"})
-    return results
+from .delivery import send_once_async
 
 
 async def work_queue(store, args):
@@ -58,17 +38,25 @@ async def work_queue(store, args):
             signal.signal(number, stop)
     try:
         while True:
-            result = await run_once_async(
-                store,
-                model=args.model,
-                base_url=args.provider_base_url,
-                timeout_seconds=args.timeout_seconds,
-                output_root=args.output_root,
-            )
+            if args.command == "send":
+                result = await send_once_async(
+                    store,
+                    args.webhook_url,
+                    timeout_seconds=args.timeout_seconds,
+                    output_root=args.output_root,
+                )
+            else:
+                result = await run_once_async(
+                    store,
+                    model=args.model,
+                    base_url=args.provider_base_url,
+                    timeout_seconds=args.timeout_seconds,
+                    output_root=args.output_root,
+                )
             if result is None:
                 break
             results.append(result)
-            if args.once:
+            if args.once or result.get("run_status") == "failed":
                 break
         failed = any(item.get("run_status") == "failed" for item in results)
         return (
@@ -103,9 +91,18 @@ def main() -> None:
     commands.add_parser("retry").add_argument("event_id")
     commands.add_parser("state").add_argument("service")
     commands.add_parser("outbox")
-    commands.add_parser("send").add_argument(
-        "--confirm", action="store_true", required=True
+    send = commands.add_parser("send")
+    send.add_argument("--confirm", action="store_true", required=True)
+    send.add_argument("--once", action="store_true")
+    send.add_argument("--timeout-seconds", type=float, default=60)
+    send.add_argument("--output-root", type=Path)
+    commands.add_parser("deliveries")
+    resolve = commands.add_parser("resolve-delivery")
+    resolve.add_argument("attempt_id")
+    resolve.add_argument(
+        "--decision", choices=("delivered", "not_delivered"), required=True
     )
+    resolve.add_argument("--note", required=True)
     serve = commands.add_parser("serve")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
@@ -130,7 +127,12 @@ def main() -> None:
         webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
         if not webhook_url:
             parser.error("SLACK_WEBHOOK_URL is required for send")
-        result = send_pending(store, webhook_url)
+        args.webhook_url = webhook_url
+        result, exit_code = asyncio.run(work_queue(store, args))
+    elif args.command == "deliveries":
+        result = store.deliveries()
+    elif args.command == "resolve-delivery":
+        result = store.resolve_delivery(args.attempt_id, args.decision, args.note)
     else:
         secret = os.environ.get("INCIDENT_WEBHOOK_SECRET")
         if not secret:

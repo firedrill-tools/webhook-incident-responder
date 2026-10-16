@@ -15,6 +15,8 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from .schema import IncidentAssessment, ServiceEvent
+from .delivery_state import capture_notification
+from .delivery_store import DeliveryStore
 from .source import (
     InvalidSource,
     validate,
@@ -25,7 +27,7 @@ from .source import (
 )
 
 
-class EventStore:
+class EventStore(DeliveryStore):
     def __init__(self, path: str | Path, clock=time.time):
         self.path = str(path)
         self.clock = clock
@@ -352,6 +354,12 @@ class EventStore:
                     "INSERT INTO outbox (event_id,message,status) VALUES (?,?,'pending')",
                     (event_id, message),
                 )
+                item = dict(
+                    db.execute(
+                        "SELECT * FROM outbox WHERE event_id=?", (event_id,)
+                    ).fetchone()
+                )
+                capture_notification(db, item, "application_created", self._now)
             if guard is not None:
                 guard()
             return self._event(
@@ -413,10 +421,3 @@ class EventStore:
                 dict(row)
                 for row in db.execute("SELECT * FROM outbox ORDER BY notification_id")
             ]
-
-    def mark_sent(self, notification_id: int) -> None:
-        with self._db() as db:
-            db.execute(
-                "UPDATE outbox SET status='sent', sent_at=? WHERE notification_id=? AND status='pending'",
-                (self.clock(), notification_id),
-            )

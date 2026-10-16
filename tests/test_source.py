@@ -151,7 +151,7 @@ def test_known_legacy_journal_preserves_original_rows_and_truthful_unknown_prove
         }
     store = EventStore(path)
     with sqlite3.connect(path) as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 1
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 2
         for name, values in before.items():
             assert db.execute(f"SELECT * FROM {name}").fetchall() == values
         proof = db.execute(

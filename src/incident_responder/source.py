@@ -9,6 +9,7 @@ import sqlite3
 import uuid
 import hashlib
 from .schema import ServiceEvent
+from .delivery_state import DELIVERY_DDL, capture_notification, validate_delivery
 
 MAX_EVENTS = 1000
 MAX_SERVICES = 128
@@ -36,8 +37,25 @@ EXTRA_DDL = (
         canonical_sha256 TEXT NOT NULL, original_payload_json TEXT,
         provenance TEXT NOT NULL, captured_at REAL NOT NULL)""",
 )
-DDL = LEGACY_DDL + EXTRA_DDL
-TABLES = ("events", "service_state", "outbox", "journal_metadata", "event_sources")
+V1_DDL = LEGACY_DDL + EXTRA_DDL
+DDL = V1_DDL + DELIVERY_DDL
+TABLES = (
+    "events",
+    "service_state",
+    "outbox",
+    "journal_metadata",
+    "event_sources",
+    "notification_sources",
+    "delivery_attempts",
+)
+
+
+def statements(version):
+    return DDL if version == 2 else V1_DDL if version == 1 else LEGACY_DDL
+
+
+def tables(version):
+    return TABLES if version == 2 else TABLES[:5] if version == 1 else TABLES[:3]
 
 
 def digest(value):
@@ -75,10 +93,10 @@ def initialize(db, clock):
     if version == 0:
         if names:
             _validate(db, version=0)
-            statements = EXTRA_DDL
+            creation = EXTRA_DDL
         else:
-            statements = DDL
-        for statement in statements:
+            creation = V1_DDL
+        for statement in creation:
             db.execute(statement)
         db.executemany(
             "INSERT INTO journal_metadata VALUES (?,?)",
@@ -102,8 +120,15 @@ def initialize(db, clock):
                 ),
             )
         db.execute("PRAGMA user_version=1")
-    elif version != 1:
+    elif version not in (1, 2):
         raise InvalidSource("unsupported incident journal version")
+    if version in (0, 1):
+        _validate(db, version=1)
+        for statement in DELIVERY_DDL:
+            db.execute(statement)
+        for raw in db.execute("SELECT * FROM outbox"):
+            capture_notification(db, dict(raw), "legacy_snapshot", clock)
+        db.execute("PRAGMA user_version=2")
     validate(db)
 
 
@@ -143,7 +168,7 @@ def _schema(db, version):
     ):
         key = (row[0], row[1], row[2])
         result[key] = re.sub(r"\s+", "", row[3].lower()) if row[3] else None
-    for table in TABLES if version == 1 else TABLES[:3]:
+    for table in tables(version):
         result[("columns", table)] = tuple(
             tuple(row) for row in db.execute(f"PRAGMA table_xinfo({table})")
         )
@@ -161,18 +186,18 @@ def _schema(db, version):
                 )
             )
         result[("indexes", table)] = tuple(sorted(indexes, key=str))
-    for table in ("outbox", "event_sources") if version == 1 else ("outbox",):
+    for table in tables(version):
         result[("foreign_keys", table)] = tuple(
             tuple(row) for row in db.execute(f"PRAGMA foreign_key_list({table})")
         )
     return result
 
 
-@lru_cache(maxsize=2)
+@lru_cache(maxsize=3)
 def expected_schema(version):
     db = sqlite3.connect(":memory:")
     try:
-        for statement in DDL if version == 1 else LEGACY_DDL:
+        for statement in statements(version):
             db.execute(statement)
         return _schema(db, version)
     finally:
@@ -196,13 +221,13 @@ def validate(db):
         ) from error
 
 
-def _validate(db, version=1):
+def _validate(db, version=2):
     if db.execute("PRAGMA user_version").fetchone()[0] != version:
         raise InvalidSource("unsupported incident journal version")
-    expected_tables = set(TABLES if version == 1 else TABLES[:3])
+    expected_tables = set(tables(version))
     objects = list(
         db.execute(
-            "SELECT type,name,LENGTH(CAST(sql AS BLOB)) FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' LIMIT 6"
+            "SELECT type,name,LENGTH(CAST(sql AS BLOB)) FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' LIMIT 8"
         )
     )
     if len(objects) != len(expected_tables) or any(
@@ -245,7 +270,7 @@ def _validate(db, version=1):
         },
         "outbox": {"event_id": 128, "status": 32},
     }
-    if version == 1:
+    if version >= 1:
         limits.update(
             journal_metadata={"key": 64, "value": 256},
             event_sources={"event_id": 128, "canonical_sha256": 64, "provenance": 64},
@@ -335,10 +360,14 @@ def _validate(db, version=1):
             or not row["message"].strip()
         ):
             raise InvalidSource("notification lacks an applied event")
-        if row["status"] not in {"pending", "sent"}:
+        if row["status"] not in (
+            {"pending", "sent"}
+            if version < 2
+            else {"pending", "sent", "sending", "delivery_unknown", "delivery_failed"}
+        ):
             raise InvalidSource("invalid notification status")
         if (
-            row["status"] == "pending"
+            row["status"] != "sent"
             and row["sent_at"] is not None
             or row["status"] == "sent"
             and (
@@ -435,7 +464,7 @@ def _validate(db, version=1):
     if states:
         raise InvalidSource("service state has no source history")
 
-    if version == 1:
+    if version >= 1:
         meta = {
             row["key"]: row["value"]
             for row in db.execute("SELECT * FROM journal_metadata")
@@ -493,3 +522,6 @@ def _validate(db, version=1):
                     )
             else:
                 raise InvalidSource("unknown event source provenance")
+
+    if version == 2:
+        validate_delivery(db)

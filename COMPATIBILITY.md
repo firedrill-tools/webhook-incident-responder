@@ -2,7 +2,7 @@
 
 ## Initial native and lease scope
 
-43 local checks qualify Python 3.12+, LangGraph 1.2.15, ChatAnthropic 1.7.6, Anthropic 1.14.0 and HTTPX2 2.13.1 through actual framework calls/controlled provider HTTP and the normal CLI. Original seven stub/graph/HMAC/order/retry checks remain. These checks use synthetic keys/models/events, with no paid model or Slack delivery. Linux exact-source CI remains required.
+43 local checks qualify Python 3.12+, LangGraph 1.2.15, ChatAnthropic 1.7.6, Anthropic 1.14.0 and HTTPX2 2.13.1 through actual framework calls/controlled provider HTTP and the normal CLI. Original seven stub/graph/HMAC/order/retry checks remain. These checks use synthetic keys/models/events, with no paid model or Slack delivery. [Linux43 passed at468f1d9](https://github.com/firedrill-tools/webhook-incident-responder/actions/runs/38886240317).
 
 A real controlled HTTP probe at baseline 04d5304 accepted a structured max_tokens assessment and applied source/outbox. Original HTTP response hooks now require message identity, supported content, exactly one IncidentAssessment call and terminal tool_use before SDK parsing/release. Invalid/max_tokens/end_turn/pause_turn/refusal/missing/duplicate/unsupported tool content fails. The graph validates citations against the actual supplied recent IDs, independently of broader journal history. Independent SQLite sequence/lease guards still decide all state/outbox writes. The assessment model receives business event fields, excluding its lease capability.
 
@@ -18,7 +18,7 @@ Bounds describe retained decoded response evidence (1 MiB), prepared request siz
 
 ## Remaining independent and external work
 
-Full stored schema/event/state/outbox/provenance validation, canonical replay, uncertain/concurrent delivery and bounded intake still need audit. Rich coherent starter/busy/ambiguous/boundary datasets, exclusive private key-free CLI/reset/readback and full fresh locked wheel/sdist/source packaging remain. See PLAN.md. Real Claude semantic/billing review, explicit Slack test authorization/access, qualified new Firedrill integration and publication/license stay parked.
+Rich coherent starter/busy/ambiguous/boundary datasets, exclusive private key-free CLI/reset/readback and full fresh locked wheel/sdist/source packaging remain. See PLAN.md. Real Claude semantic/billing review, explicit Slack test authorization/access, qualified new Firedrill integration and publication/license stay parked.
 
 
 ## Stored source and bounded intake checkpoint
@@ -31,4 +31,15 @@ Support bounds are 1,000 events, 1,000 notifications, 128 services, 8 MiB busine
 
 Intake verifies signature shape before reading, bounds accumulated raw body at 65,536 bytes (including honest or misleading Content-Length), rejects duplicate/nonfinite/malformed JSON and validates typed facts before SQL. HMAC verifies the actual raw body, not the canonical projection. An open endpoint refuses newly corrupt source with 503. Intake creates no model work. This does not bound all ASGI/server/network allocation or imply production source authenticity beyond the configured HMAC key.
 
-Next audit delivery leases/uncertain acknowledgement/per-service ordering/operator resolution without sending a real Slack message. Then coherent case data/private initialization/readback/reset and full fresh locked distributions. Live provider/Slack/Firedrill/publication gates remain external.
+Delivery is qualified below using controlled endpoints. Remaining independent work: coherent case data/private initialization/readback/reset and full fresh locked distributions. Live provider/Slack/Firedrill/publication gates remain external.
+
+
+## Delivery checkpoint
+
+[Source92 passed at64c948a](https://github.com/firedrill-tools/webhook-incident-responder/actions/runs/38889491834). A controlled baseline probe then reproduced two actual defects: concurrent senders POSTed the same notification twice, and HTTP200 with an invalid acknowledgement still marked sent. Private proof: /tmp/firedrill-webhook-delivery-baseline.json. No actual Slack endpoint was used.
+
+161 local checks now qualify schema2 fenced notification claims, per-service order, original notification provenance, strict 200/ok acknowledgement, invalid/error/redirect/oversized response uncertainty, target secrecy, escaped Slack controls, explicit fenced operator resolution and a three-attempt limit. Actual CLI subprocesses over local HTTP qualify one POST across concurrent senders, disabled environment proxies/redirects, nonzero failure, all three parent signals and killed-sender expiry without resend. Original92 remain; known schema0/1 migration preserves all original business/source/ownership rows. Corrupt delivery/source facts are refused without repair.
+
+New HTTP clients are owned per delivery, awaited on error/cancel/deadline and closed before acknowledgement release. Private prepared/final receipts retain original request/response hashes/body/status while exposing only origin/URL hash; provider URL path and transport error text are not printed. Post-dispatch uncertainty cannot automatically retry. Resolution is explicitly an operator assertion, separate from original HTTP acknowledgement; no Slack message ID/ts is invented. Recording faults stop later work; an already-sent SQL effect survives a failed final receipt with failed run/nonzero CLI and unknown durable status when final recording remains unavailable. Retained decoded acknowledgement is bounded4KiB, not upstream allocation/wire or a hard whole-run wall guarantee.
+
+Live Claude semantics/billing, real Slack access/delivery authorization, qualified new Firedrill and publication/license remain parked. Rich coherent cases/private initialization/readback/reset and full fresh locked distributions remain independent work. This checkpoint is not full project completion.
