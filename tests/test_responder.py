@@ -19,15 +19,24 @@ class Clock:
 
 
 def event(sequence=1, kind="degraded", event_id=None, service="checkout-api"):
-    return ServiceEvent(event_id=event_id or f"api-{sequence:03}", service=service,
-                        sequence=sequence, kind=kind, observed_at="2026-10-15T10:05:00Z",
-                        details={"error_rate_pct": 12.4 if kind == "degraded" else 0.2})
+    return ServiceEvent(
+        event_id=event_id or f"api-{sequence:03}",
+        service=service,
+        sequence=sequence,
+        kind=kind,
+        observed_at="2026-10-15T10:05:00Z",
+        details={"error_rate_pct": 12.4 if kind == "degraded" else 0.2},
+    )
 
 
 def assess(item, context):
-    return IncidentAssessment(severity="critical", summary="Checkout errors rose to 12.4%",
-                              suspected_cause="Cause unconfirmed; investigate upstream dependency",
-                              recommended_action="Inspect request traces", evidence_event_ids=[item["event_id"]])
+    return IncidentAssessment(
+        severity="critical",
+        summary="Checkout errors rose to 12.4%",
+        suspected_cause="Cause unconfirmed; investigate upstream dependency",
+        recommended_action="Inspect request traces",
+        evidence_event_ids=[item["event_id"]],
+    )
 
 
 @pytest.fixture
@@ -90,7 +99,12 @@ def test_expired_worker_is_fenced_and_reclaimed(tmp_path):
     assert second["lease_token"] != first["lease_token"]
     with pytest.raises(ValueError, match="lease is no longer current"):
         store.commit(first["event_id"], first["lease_token"], assess(first, {}))
-    assert store.commit(second["event_id"], second["lease_token"], assess(second, {}))["status"] == "applied"
+    assert (
+        store.commit(second["event_id"], second["lease_token"], assess(second, {}))[
+            "status"
+        ]
+        == "applied"
+    )
     assert len(store.outbox()) == 1
 
 
@@ -116,8 +130,13 @@ def test_invalid_model_citation_cannot_commit(store):
     store.submit(event())
 
     def invented(*_):
-        return IncidentAssessment(severity="warning", summary="Issue", suspected_cause="Unknown",
-                                  recommended_action="Check logs", evidence_event_ids=["other"])
+        return IncidentAssessment(
+            severity="warning",
+            summary="Issue",
+            suspected_cause="Unknown",
+            recommended_action="Check logs",
+            evidence_event_ids=["other"],
+        )
 
     assert run_once(store, invented)["status"] == "failed"
     assert store.state("checkout-api") is None
@@ -129,13 +148,29 @@ def test_signed_webhook_accepts_valid_payload_and_rejects_invalid(store):
     raw = event().model_dump_json().encode()
     signature = "sha256=" + hmac.new(b"test-secret", raw, hashlib.sha256).hexdigest()
     assert client.post("/events", content=raw).status_code == 401
-    accepted = client.post("/events", content=raw,
-                           headers={"X-Incident-Signature": signature})
+    accepted = client.post(
+        "/events", content=raw, headers={"X-Incident-Signature": signature}
+    )
     assert accepted.status_code == 202
     assert accepted.json() == {"event_id": "api-001", "status": "pending"}
-    assert client.post("/events", content=raw,
-                       headers={"X-Incident-Signature": signature}).status_code == 202
-    changed = event(event_id="api-001").model_copy(update={"details": {"new": True}}).model_dump_json().encode()
-    changed_sig = "sha256=" + hmac.new(b"test-secret", changed, hashlib.sha256).hexdigest()
-    assert client.post("/events", content=changed,
-                       headers={"X-Incident-Signature": changed_sig}).status_code == 409
+    assert (
+        client.post(
+            "/events", content=raw, headers={"X-Incident-Signature": signature}
+        ).status_code
+        == 202
+    )
+    changed = (
+        event(event_id="api-001")
+        .model_copy(update={"details": {"new": True}})
+        .model_dump_json()
+        .encode()
+    )
+    changed_sig = (
+        "sha256=" + hmac.new(b"test-secret", changed, hashlib.sha256).hexdigest()
+    )
+    assert (
+        client.post(
+            "/events", content=changed, headers={"X-Incident-Signature": changed_sig}
+        ).status_code
+        == 409
+    )

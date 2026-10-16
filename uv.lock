@@ -1076,7 +1076,9 @@ name = "webhook-incident-responder"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "anthropic" },
     { name = "fastapi" },
+    { name = "httpx2" },
     { name = "langchain-anthropic" },
     { name = "langgraph" },
     { name = "uvicorn" },
@@ -1090,8 +1092,10 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anthropic", specifier = "==1.14.0" },
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "httpx", marker = "extra == 'test'", specifier = ">=0.27,<1" },
+    { name = "httpx2", specifier = "==2.13.1" },
     { name = "langchain-anthropic", specifier = "==1.7.6" },
     { name = "langgraph", specifier = "==1.2.15" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8,<10" },

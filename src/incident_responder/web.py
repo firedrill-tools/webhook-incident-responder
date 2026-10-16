@@ -23,7 +23,9 @@ def create_app(store: EventStore, secret: str) -> FastAPI:
         if len(body) > 65536:
             raise HTTPException(status_code=413, detail="event too large")
         supplied = request.headers.get("x-incident-signature", "")
-        expected = "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+        expected = (
+            "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+        )
         if not hmac.compare_digest(supplied, expected):
             raise HTTPException(status_code=401, detail="invalid signature")
         try:

@@ -5,6 +5,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      LANGSMITH_TRACING: "false"
+      LANGCHAIN_TRACING_V2: "false"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v7

@@ -1,0 +1,21 @@
+# Webhook responder qualification
+
+## Initial native and lease scope
+
+43 local checks qualify Python 3.12+, LangGraph 1.2.15, ChatAnthropic 1.7.6, Anthropic 1.14.0 and HTTPX2 2.13.1 through actual framework calls/controlled provider HTTP and the normal CLI. Original seven stub/graph/HMAC/order/retry checks remain. These checks use synthetic keys/models/events, with no paid model or Slack delivery. Linux exact-source CI remains required.
+
+A real controlled HTTP probe at baseline 04d5304 accepted a structured max_tokens assessment and applied source/outbox. Original HTTP response hooks now require message identity, supported content, exactly one IncidentAssessment call and terminal tool_use before SDK parsing/release. Invalid/max_tokens/end_turn/pause_turn/refusal/missing/duplicate/unsupported tool content fails. The graph validates citations against the actual supplied recent IDs, independently of broader journal history. Independent SQLite sequence/lease guards still decide all state/outbox writes. The assessment model receives business event fields, excluding its lease capability.
+
+The pinned integration has no owned-client constructor field. A narrow subclass overrides its two cached client accessors while retaining native formatting/tool parsing. New async SDK/HTTP clients are owned per attempt and closed before release/finalization; failed close cannot release a valid assessment. Explicit API key/endpoint and public auth-header omission override credential environment/profile alternatives. SDK/model retries are zero, one prepared request and 512 requested output tokens; HTTP phases request 30 seconds, overall operation defaults 60 and allows up to 120. User-selected model names are never substituted. Serving model remains an original response observation, not an inferred match to the request.
+
+Original decoded response bytes/base64/hash/JSON, unknown fields, IDs, errors and individual usage are retained before SDK validation/defaults. Missing/invalid/explicit zero measures remain distinct; optional total is not fabricated. Failed HTTP usage survives errors. SDK AIMessage/normalized counters are separately labeled, including defaulted absent cache values. Cost stays unknown. This qualifies nonstreaming Messages JSON, not raw wire SSE, transport billing or model judgment.
+
+Private 0700 directories/0600 atomically staged, flushed and renamed traces precede claim/request/commit intent. Sticky recording faults block later work; failed final publication exposes in-memory evidence and unknown durable status. If state already committed, actual event/outbox remains applied while the run fails. No automatic action replay erases or repeats that effect. Receipt callbacks/flushes are awaited. Parent cancellation/deadline/native async work drain before final records; CLI SIGINT/SIGTERM/SIGHUP returns 130/143/129 and preserves failure. Pending signal cancellation wakes the event loop and is checked around synchronous database mutation. Injected assessor resources/work remain caller-owned.
+
+An original separate probe committed after an unreplaced lease expired. Commit and failure are now fenced at and after expiry; claim reclaims at the same boundary and rejects invalid/nonfinite durations. Clock sampling/guards occur inside the transaction after acquiring locks. Source event timestamps never advance the worker/store clock automatically. The lease uses the configured cooperative store clock, separate from monotonic operation deadlines.
+
+Bounds describe retained decoded response evidence (1 MiB), prepared request size and requested async operations. HTTP response reading, local SQLite/filesystem/recording/kernel work and cleanup are not hard whole-run wall/heap/wire/billing guarantees. Model-visible source placement is not an OS security sandbox.
+
+## Remaining independent and external work
+
+Full stored schema/event/state/outbox/provenance validation, canonical replay, uncertain/concurrent delivery and bounded intake still need audit. Rich coherent starter/busy/ambiguous/boundary datasets, exclusive private key-free CLI/reset/readback and full fresh locked wheel/sdist/source packaging remain. See PLAN.md. Real Claude semantic/billing review, explicit Slack test authorization/access, qualified new Firedrill integration and publication/license stay parked.
