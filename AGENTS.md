@@ -19,3 +19,7 @@ Delivery checkpoint: schema2 adds immutable notification-source hashes and order
 
 
 Data/distribution checkpoint: synthetic-incident-cases1.0.0 has12 hash-bound cases/four profiles. Preserve original fictional imported business rows and unknown historical model/authentication/delivery measurements. Never pass task/fixture authority to the model. Model-free exclusive private init/readback/reset must preserve existing paths and old workspaces/evidence; reset creates a fresh destination after source-instance validation. All183 tests and fresh locked wheel/sdist/complete-source gates pass locally, including actual installed native HTTP/controlled delivery and full183 archived tests. Keep exact per-file archive inventory/repeated bytes, source authority and missing-key receipts. Confirm exact Linux CI and local/Linux source hashes before recording independent completion; external live/Slack/new Firedrill/publication gates remain parked.
+
+## Current Firedrill integration
+
+Released CLI/SDK 2.2.2, current command invocation, remote operator MCP and recovery are documented in [firedrill/README.md](firedrill/README.md). Offline checks preserve actual private case/native key behavior and existing independent authority. Authenticated persisted runs and live quality/cost remain separate parked gates.

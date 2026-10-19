@@ -26,4 +26,4 @@ testpaths = ["tests"]
 "data" = "incident_responder/sample_data"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "data", "fixtures", "tests", "scripts", "scenarios", ".github", "README.md", "AGENTS.md", "PLAN.md", "COMPATIBILITY.md", "pyproject.toml", "uv.lock", ".gitignore"]
+include = ["firedrill", "src", "data", "fixtures", "tests", "scripts", "scenarios", ".github", "README.md", "AGENTS.md", "PLAN.md", "COMPATIBILITY.md", "pyproject.toml", "uv.lock", ".gitignore"]

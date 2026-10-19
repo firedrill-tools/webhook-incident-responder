@@ -1,0 +1,17 @@
+{
+  "name": "webhook-incident-responder-firedrill",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test adapter.test.mjs",
+    "validate": "firedrill validate scenario.json --json --non-interactive",
+    "simulate": "node simulate.mjs"
+  },
+  "dependencies": {
+    "@firedrill-run/cli": "2.2.2",
+    "@firedrill-run/sdk": "2.2.2"
+  }
+}

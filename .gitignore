@@ -10,3 +10,6 @@ __pycache__/
 
 dist/
 *.egg-info/
+
+node_modules/
+.runs/

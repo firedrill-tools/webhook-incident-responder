@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "2026-10-14",
+  "name": "webhook-incident-responder \u2014 actual bounded native execution",
+  "target": {
+    "kind": "command",
+    "argv": [
+      "node",
+      "firedrill/target.mjs"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "checkout-degradation",
+      "name": "checkout-degradation work",
+      "input": {
+        "caseId": "checkout-degradation",
+        "action": "work"
+      }
+    },
+    {
+      "id": "sparse-telemetry",
+      "name": "sparse-telemetry work",
+      "input": {
+        "caseId": "sparse-telemetry",
+        "action": "work"
+      }
+    },
+    {
+      "id": "regional-busy",
+      "name": "regional-busy inspect",
+      "input": {
+        "caseId": "regional-busy",
+        "action": "inspect"
+      }
+    }
+  ],
+  "repetitions": 1,
+  "concurrency": 1,
+  "limits": {
+    "timeoutMs": 240000,
+    "maxRuns": 3,
+    "maxOutputBytes": 4194304
+  }
+}

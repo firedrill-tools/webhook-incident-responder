@@ -16,6 +16,11 @@ jobs:
       - run: uv sync --locked --extra test
       - run: uv run --locked python scripts/build_datasets.py --check
       - run: uv run --locked --extra test pytest -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --prefix firedrill --ignore-scripts --no-audit --no-fund
+      - run: npm test --prefix firedrill
       - run: uv build
       - run: uv run --locked python scripts/check_distribution.py
       - uses: actions/upload-artifact@v4

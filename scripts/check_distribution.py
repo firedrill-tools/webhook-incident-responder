@@ -240,6 +240,9 @@ def main():
             ],
             temp,
         )
+        assert (complete/'firedrill/scenario.json').exists() and not (complete/'firedrill/node_modules').exists()
+        run(['npm', 'ci', '--prefix', 'firedrill', '--ignore-scripts', '--no-audit', '--no-fund'], complete)
+        run(['npm', 'test', '--prefix', 'firedrill'], complete)
         exercise(complete / ".venv/bin/python", temp / "complete-case")
         run(
             [complete / ".venv/bin/python", "scripts/build_datasets.py", "--check"],
