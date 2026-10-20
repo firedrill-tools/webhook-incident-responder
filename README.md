@@ -4,6 +4,8 @@ A synthetic service incident worker using [LangGraph](https://docs.langchain.com
 
 Simulate this LangGraph AI agent with [Firedrill](https://firedrill.run/), a simulation platform for AI agents. Start with the [Firedrill setup and simulation guide](firedrill/README.md); your coding agent can operate it while this application's runner stays in your repository or CI.
 
+This example repository is publicly viewable. A project license has not been selected.
+
 ## Run locally
 
 Requires Python 3.12+ and `uv`:
@@ -111,9 +113,9 @@ uv build
 uv run --locked python scripts/check_distribution.py
 ```
 
-The wheel includes all thirteen JSON data files. The sdist includes source, lockfile, data, original fixtures, tests/helpers, scripts, scenarios, docs and CI. The separate deterministic complete source archive adds an exact per-file SHA256/size/mode manifest and is built without Git or installed caches. `dist/webhook-incident-responder-0.2.0-source.tar.gz` is created by the distribution gate. Fresh locked wheel, sdist and complete-source environments outside the checkout exercise console/module CLI, all twelve private cases, reset, missing-key failure receipts, actual SDK over owned HTTP and acknowledged controlled delivery. The complete archived source runs the entire183-check suite and keeps every archived original file unchanged. CI uploads distributions and `qualification.json` for review; repositories remain private and no publication/license choice is implied.
+The wheel includes all thirteen JSON data files. The sdist includes source, lockfile, data, original fixtures, tests/helpers, scripts, scenarios, docs and CI. The separate deterministic complete source archive adds an exact per-file SHA256/size/mode manifest and is built without Git or installed caches. `dist/webhook-incident-responder-0.2.0-source.tar.gz` is created by the distribution gate. Fresh locked wheel, sdist and complete-source environments outside the checkout exercise console/module CLI, all twelve private cases, reset, missing-key failure receipts, actual SDK over owned HTTP and acknowledged controlled delivery. The complete archived source runs the entire183-check suite and keeps every archived original file unchanged. CI uploads distributions and `qualification.json` for review; the repositories are publicly viewable and no project license has been selected.
 
-Independent application requirements are implemented. Exact source/data/distribution Linux evidence is recorded in [COMPATIBILITY.md](COMPATIBILITY.md) and the catalog. Paid Claude quality/billing, real Slack authorization/access, authenticated Firedrill persistence verification and publication/license remain parked.
+Independent application requirements are implemented. Exact source/data/distribution Linux evidence is recorded in [COMPATIBILITY.md](COMPATIBILITY.md) and the catalog. Paid Claude quality/billing, real Slack authorization/access, authenticated Firedrill persistence verification and license remain parked.
 
 ## Current Firedrill integration
 
