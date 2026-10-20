@@ -39,7 +39,7 @@ An event ID replay with the same payload returns its current journal row. Reusin
 
 43 local checks exercise actual LangGraph/ChatAnthropic/Anthropic HTTP, normal CLI success/failure/SIGINT/SIGTERM/SIGHUP, original response/usage/error retention, cancellation/deadline/closed clients, recording faults, stale source, exact supplied citations and lease expiry. The original stub/HMAC/order/retry checks remain. Controlled responses establish runtime boundaries; live Claude quality and Slack delivery remain unverified. A live proof requires provider and Slack test access. The checked-in Firedrill adapter uses the released CLI/SDK; authenticated persisted-run verification remains separate. The SQLite journal and HMAC secret are synthetic example choices; a production deployment needs its own source authenticity, secret storage and notification delivery policy.
 
-Explore related applications in the [Firedrill example catalog](https://github.com/firedrill-tools/firedrill-example-catalog). Product and setup references: [Firedrill](https://firedrill.run/) and the [official developer documentation](https://docs.firedrill.run/). Use documentation matching the qualified release; this repository records its current integration limits above.
+Explore related applications in the [Firedrill examples](https://docs.firedrill.run/guides/examples). Product and setup references: [Firedrill](https://firedrill.run/) and the [official developer documentation](https://docs.firedrill.run/). Use documentation matching the qualified release; this repository records its current integration limits above.
 
 
 ## Native assessment and private attempt records
