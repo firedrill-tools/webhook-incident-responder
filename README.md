@@ -1,6 +1,8 @@
-# Webhook incident responder
+# Webhook incident responder with LangGraph and Anthropic
 
 A synthetic service incident worker using [LangGraph](https://docs.langchain.com/oss/python/langgraph/quickstart) and [ChatAnthropic](https://docs.langchain.com/oss/python/integrations/chat/anthropic). A signed HTTP endpoint journals service events. The worker inspects state, asks Claude for an evidence-bound assessment of degradations, then atomically updates incident state and queues a Slack-format notification. The model cannot send messages or change the event sequence.
+
+Simulate this LangGraph AI agent with [Firedrill](https://firedrill.run/), a simulation platform for AI agents. Start with the [Firedrill setup and simulation guide](firedrill/README.md); your coding agent can operate it while this application's runner stays in your repository or CI.
 
 ## Run locally
 
@@ -33,7 +35,7 @@ After inspecting the receiving system, an operator can explicitly resolve an unk
 
 An event ID replay with the same payload returns its current journal row. Reusing the ID with changed content or assigning one service sequence to a different ID is rejected. A late event whose sequence is at or below the committed service sequence is ignored. A worker lease token and its expiry fence commits even without replacement. Three attempts are allowed. Incident and outbox changes share one SQLite transaction.
 
-43 local checks exercise actual LangGraph/ChatAnthropic/Anthropic HTTP, normal CLI success/failure/SIGINT/SIGTERM/SIGHUP, original response/usage/error retention, cancellation/deadline/closed clients, recording faults, stale source, exact supplied citations and lease expiry. The original stub/HMAC/order/retry checks remain. Controlled responses establish runtime boundaries; live Claude quality and Slack delivery remain unverified. A live proof requires provider and Slack test access. The thin Firedrill connection is pending qualification of the new release. The SQLite journal and HMAC secret are synthetic example choices; a production deployment needs its own source authenticity, secret storage and notification delivery policy.
+43 local checks exercise actual LangGraph/ChatAnthropic/Anthropic HTTP, normal CLI success/failure/SIGINT/SIGTERM/SIGHUP, original response/usage/error retention, cancellation/deadline/closed clients, recording faults, stale source, exact supplied citations and lease expiry. The original stub/HMAC/order/retry checks remain. Controlled responses establish runtime boundaries; live Claude quality and Slack delivery remain unverified. A live proof requires provider and Slack test access. The checked-in Firedrill adapter uses the released CLI/SDK; authenticated persisted-run verification remains separate. The SQLite journal and HMAC secret are synthetic example choices; a production deployment needs its own source authenticity, secret storage and notification delivery policy.
 
 Explore related applications in the [Firedrill example catalog](https://github.com/firedrill-tools/firedrill-example-catalog). Product and setup references: [Firedrill](https://firedrill.run/) and the [official developer documentation](https://docs.firedrill.run/). Use documentation matching the qualified release; this repository records its current integration limits above.
 
@@ -111,7 +113,7 @@ uv run --locked python scripts/check_distribution.py
 
 The wheel includes all thirteen JSON data files. The sdist includes source, lockfile, data, original fixtures, tests/helpers, scripts, scenarios, docs and CI. The separate deterministic complete source archive adds an exact per-file SHA256/size/mode manifest and is built without Git or installed caches. `dist/webhook-incident-responder-0.2.0-source.tar.gz` is created by the distribution gate. Fresh locked wheel, sdist and complete-source environments outside the checkout exercise console/module CLI, all twelve private cases, reset, missing-key failure receipts, actual SDK over owned HTTP and acknowledged controlled delivery. The complete archived source runs the entire183-check suite and keeps every archived original file unchanged. CI uploads distributions and `qualification.json` for review; repositories remain private and no publication/license choice is implied.
 
-Independent application requirements are implemented. Exact source/data/distribution Linux evidence is recorded in [COMPATIBILITY.md](COMPATIBILITY.md) and the catalog. Paid Claude quality/billing, real Slack authorization/access, a qualified new Firedrill contract and publication/license remain parked.
+Independent application requirements are implemented. Exact source/data/distribution Linux evidence is recorded in [COMPATIBILITY.md](COMPATIBILITY.md) and the catalog. Paid Claude quality/billing, real Slack authorization/access, authenticated Firedrill persistence verification and publication/license remain parked.
 
 ## Current Firedrill integration
 
